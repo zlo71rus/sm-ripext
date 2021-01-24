@@ -478,15 +478,20 @@ static cell_t GetResponseHeader(IPluginContext *pContext, const cell_t *params)
 
 	char *name;
 	pContext->LocalToString(params[2], &name);
-	const ke::AString lowercaseName = ke::AString(name).lowercase();
+	std::string lowercaseName(name);
 
-	HTTPHeaderMap::Result header = response->headers.find(lowercaseName.chars());
+	for (size_t i = 0; i < lowercaseName.size(); i++)
+	{
+		lowercaseName[i] = tolower(lowercaseName[i]);
+	}
+
+	HTTPHeaderMap::Result header = response->headers.find(lowercaseName.c_str());
 	if (!header.found())
 	{
 		return 0;
 	}
 
-	pContext->StringToLocalUTF8(params[3], params[4], header->value.chars(), NULL);
+	pContext->StringToLocalUTF8(params[3], params[4], header->value.c_str(), NULL);
 
 	return 1;
 }
